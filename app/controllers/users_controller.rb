@@ -42,7 +42,7 @@ class UsersController < ApplicationController
   def update
 
     respond_to do |format|
-      if Net::HTTP.get_response(URI(user_params[:start_url])).code == "200" && @user.stubs.create(start_url: user_params[:start_url], end_url: (0...4).map { (65 + rand(26)).chr }.join) 
+      if is_valid?(user_params[:start_url]) && @user.stubs.create(start_url: user_params[:start_url], end_url: (0...4).map { (65 + rand(26)).chr }.join) 
 
       # The above randomization would be relplaced by plucking a value from an array persisting in memory on on a cache server
       # representing a defined set of elgible paths that are randomized and sorted by character length.  At this point,
@@ -78,5 +78,14 @@ class UsersController < ApplicationController
     # Only allow a list of trusted parameters through.
     def user_params
       params.require(:user).permit(:username, :start_url)
+    end
+
+    def is_valid?(url)
+      puts url
+      begin
+        Net::HTTP.get_response(URI(url)).code == "200"
+      rescue
+        false
+      end
     end
 end
