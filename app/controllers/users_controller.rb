@@ -8,6 +8,8 @@ class UsersController < ApplicationController
 
   # GET /users/1 or /users/1.json
   def show
+    @stub = Stub.new
+    @stubs = @user.stubs
   end
 
   # GET /users/new
@@ -21,11 +23,11 @@ class UsersController < ApplicationController
 
   # POST /users or /users.json
   def create
-    @user = User.new(user_params)
+    @user = User.find_or_create_by(user_params)
 
     respond_to do |format|
       if @user.save
-        format.html { redirect_to user_url(@user), notice: "User was successfully created." }
+        format.html { redirect_to user_url(@user) }
         format.json { render :show, status: :created, location: @user }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -36,9 +38,17 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1 or /users/1.json
   def update
+
     respond_to do |format|
-      if @user.update(user_params)
-        format.html { redirect_to user_url(@user), notice: "User was successfully updated." }
+      if @user.stubs.create(start_url: user_params[:start_url], end_url: (0...4).map { (65 + rand(26)).chr }.join) 
+
+      # The above randomization would be relplaced by plucking a value from an array persisting in memory on on a cache server
+      # representing a defined set of elgible paths that are randomized and sorted by character length.  At this point,
+      # a delayed job would be intiated if the length of the remaining array warrants the execution of a task adding new
+      # entries to the array representing a new set paths with an additional character.  Doing so would ensure optimal URL brevity,
+      # operational performance and avoid viod collisions.
+
+        format.html { redirect_to user_url(@user), notice: "New Shortened URL was successfully created." }
         format.json { render :show, status: :ok, location: @user }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -65,6 +75,6 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit(:username)
+      params.require(:user).permit(:username, :start_url)
     end
 end

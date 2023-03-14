@@ -1,9 +1,52 @@
 <p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Username:</strong>
+  <strong>Current User:</strong>
   <%= @user.username %>
+
 </p>
 
-<%= link_to 'Edit', edit_user_path(@user) %> |
-<%= link_to 'Back', users_path %>
+<%= form_with(model: @user) do |form| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this @user from being saved:</h2>
+
+      <ul>
+        <% @user.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :start_url, "Create a New Shortened URL" %>
+    <%= form.text_field :start_url %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Submit URL" %>
+  </div>
+<% end %>
+
+<h1>Existing Shortened URLs</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Destination</th>
+      <th>Shortenend Link</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @stubs.each do |stub| %>
+      <tr>
+        <td><%= stub.start_url %></td>
+        <td><%= "http://localhost:3000/" + stub.end_url %></td>
+        <td><%= stub.count.to_s %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
