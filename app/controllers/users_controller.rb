@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  require 'net/http'
+  
   before_action :set_user, only: %i[ show edit update destroy ]
 
   # GET /users or /users.json
@@ -40,7 +42,7 @@ class UsersController < ApplicationController
   def update
 
     respond_to do |format|
-      if @user.stubs.create(start_url: user_params[:start_url], end_url: (0...4).map { (65 + rand(26)).chr }.join) 
+      if Net::HTTP.get_response(URI(user_params[:start_url])).code == "200" && @user.stubs.create(start_url: user_params[:start_url], end_url: (0...4).map { (65 + rand(26)).chr }.join) 
 
       # The above randomization would be relplaced by plucking a value from an array persisting in memory on on a cache server
       # representing a defined set of elgible paths that are randomized and sorted by character length.  At this point,
@@ -51,7 +53,7 @@ class UsersController < ApplicationController
         format.html { redirect_to user_url(@user), notice: "New Shortened URL was successfully created." }
         format.json { render :show, status: :ok, location: @user }
       else
-        format.html { render :edit, status: :unprocessable_entity }
+        format.html { redirect_to user_url(@user), notice: "Your Shortened URL could not be created." }
         format.json { render json: @user.errors, status: :unprocessable_entity }
       end
     end
